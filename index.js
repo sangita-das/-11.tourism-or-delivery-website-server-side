@@ -72,68 +72,96 @@ async function run() {
     })
 
 
-    /*  // add Services
-     app.post("/addService", async (req, res) => {
-       console.log(req.body);
-       const result = await ServicesCollection.insertOne(req.body);
-       console.log(result);
-     });
- 
-     // get search events
-     app.get("/searchService", async (req, res) => {
-       const result = await ServicesCollection.find({
-         title: { $regex: req.query.search },
-       }).toArray();
-       res.send(result);
-       console.log(result);
-     });
- 
-     // add clients
-     app.post("/addClients", async (req, res) => {
-       console.log(req.body);
-       const result = await clientCollection.insertOne(req.body);
-       res.send(result);
-     });
- 
-     // get all client
- 
-     app.get("/allClients", async (req, res) => {
-       const result = await clientCollection.find({}).toArray();
-       res.send(result);
-       console.log(result);
-     });
-     // get all servicess
- 
-     app.get("/allServices", async (req, res) => {
-       const result = await ServicesCollection.find({}).toArray();
-       res.send(result);
-     });
- 
-     // delete event
- 
-     app.delete("/deleteService/:id", async (req, res) => {
-       console.log(req.params.id);
-       const result = await ServicesCollection.deleteOne({
-         _id: ObjectId(req.params.id),
-       });
-       res.send(result);
-     });
- 
-     // my orders
- 
-     app.get("/myOrders/:email", async (req, res) => {
-       const result = await ServicesCollection.find({
-         email: req.params.email,
-       }).toArray();
-       res.send(result);
-     });
- 
- 
- 
-     // DELETE API
- 
- 
-  */
+
+
+
+
+    const users = [
+      { id: 1, name: 'Sagotta Adhikary', email: 'sagotta@gmail.com', phone: '017888888888' },
+      { id: 2, name: 'Akhi patellal', email: 'Alkhi@gmail.com', phone: '017888888888' },
+      { id: 3, name: 'Joynal Rahman', email: 'Joynal@gmail.com', phone: '017888888888' },
+      { id: 4, name: 'Alex Diva', email: 'Alex@gmail.com', phone: '017888888888' },
+      { id: 5, name: 'Soniya Kubra', email: 'Soniya@gmail.com', phone: '017888888888' },
+
+    ]
+
+
+    app.get('/users', (req, res) => {
+      const search = req.query.search;
+
+      if (search) {
+        const searchResult = users.filter(user => user.name.toLocaleLowerCase().includes(search));
+        res.send(searchResult);
+      }
+      else {
+        res.send(users)
+      }
+    });
+
+    // app.METHOD my Order / Client section 
+    app.post('/users', async (req, res) => {
+      const newUser = req.body;
+      const result = await serviceCollection.insertOne(newUser)
+      // newUser.id = users.length;
+      // users.push(newUser);
+      console.log('hitting the post', req.body);
+      res.json(result)
+    })
+
+
+    // add clients
+    app.post("/addClients", async (req, res) => {
+      console.log(req.body);
+      const result = await serviceCollection.insertOne(req.body);
+      res.send(result);
+    });
+
+
+    // my orders
+
+    app.get("/myOrders/:email", async (req, res) => {
+      const result = await ServiceCollection.find({
+        email: req.params.email,
+      }).toArray();
+      res.send(result);
+    });
+
+
+    /* dynamic api */
+    app.get('/users/:id', (req, res) => {
+      const id = req.params.id;
+      const user = users[id]
+      res.send(user);
+      // console.log(req.params.id);
+    })
+
+
+
+    // get add servicess
+
+    app.get("/addServices", async (req, res) => {
+      const result = await ServiceCollection.find({}).toArray();
+      res.send(result);
+    });
+
+
+    // gut method update services status
+
+    app.put("/addServices/:key", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const status = req.body.status
+      const options = { upsert: true };
+      const doc = {
+        $set: {
+          status: status
+        }
+      }
+      const result = await ServiceCollection.updateOne({ query, doc, options }).toArray();
+      res.send(result);
+      res.json(result)
+    });
+
   }
 
 
